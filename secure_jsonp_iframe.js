@@ -36,7 +36,13 @@
             });
         }
         
-        window.addEventListener("message", receiveMessage, false);
+
+        if (window.addEventListener) {
+            window.addEventListener("message", receiveMessage, false);
+        }
+        else if (window.attachEvent) {
+            window.attachEvent("onmessage", receiveMessage);
+        }
         
     } else { // postmessage not available
         
