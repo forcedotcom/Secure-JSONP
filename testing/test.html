@@ -1,0 +1,26 @@
+<html>
+<head>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+  <script src="../dependencies/json2.js"></script>
+  <script src="../secure_jsonp.js"></script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+    
+    var testCallback = function(result) {
+        $('body').append("<br><br>result: " +  JSON.stringify(result));
+    };
+    
+    $.makeSecureJsonpRequest('https://graph.facebook.com/evanbeard',
+                             testCallback
+                            );
+
+    $.makeSecureJsonpRequest('https://graph.facebook.com/howietl',
+                             testCallback
+                            );
+
+    });
+  </script>
+</head>
+<body>
+</body>
+</html>
