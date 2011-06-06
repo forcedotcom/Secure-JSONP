@@ -14,7 +14,9 @@ This library is currently a jQuery plugin, but could be easily modified to stand
 
 1) You must include jquery, json2.js, and secure_jsonp.js on your domain to be kept safe. You will then need to upload 'secure_jsonp_iframe.js' and 'secure_jsonp_iframe.html' to a separate domain that you control, and whose security you do not care about (this is important, this is the domain that will be vulnerable to XSS!). 
 
-2) You then need to modify the constants at the top of secure_jsonp.js, secure_jsonp_iframe.js, and the links at the top of secure_jsonp_iframe.html to point to the current locations on your webserver(s).
+2) You then need to modify the constants at the top of secure_jsonp.js, secure_jsonp_iframe.js, and the links at the top of secure_jsonp_iframe.html to point to the correct locations on your webserver(s).
+
+3) Once finished, you can use this library with a simple interface:
 
      $.makeSecureJsonpRequest(url, callback)
 
