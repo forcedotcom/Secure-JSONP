@@ -62,11 +62,21 @@ One drawback of the window.name transport is a security issue noted below. This 
 
 There is a race condition in which the jsonp response could be intercepted if postmessage is not available (in older browsers). This is because window.name is globally accessible in some older browsers (e.g. IE6/7, see http://code.google.com/p/browsersec/w/list). If you are passing sensitive data, it may be wise to implement a block cypher. The parent iframe would send a secret back to the child iframe through the location, and that key would be used to sign the data before placing it in window.name and then used again to decrypt the data from window.name by the parent.
 
-## License
-Apache 2.0
-
 ## Authors
 Evan A. Beard
 
 ## Contributions 
 Contributions are welcome -- please send a pull request...and don't forget to add yourself to the authors list.
+
+## License
+BSD
+
+Copyright (c) 2011, Salesforce Inc.
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+
+    Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+    Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.

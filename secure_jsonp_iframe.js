@@ -8,10 +8,6 @@
 
     var POSTMESSAGE_AVAILABLE = "postMessage" in window;
     
-    var mockJsonpRequest = function(url, callback) {
-	setTimeout(function(){callback("testData")}, 1000);
-    }
-
     var makeJsonpRequest = function(url, callback) {
 	$.ajax({ url: url,
 		 dataType: 'jsonp',
