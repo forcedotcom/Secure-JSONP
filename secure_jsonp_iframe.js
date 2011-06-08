@@ -1,4 +1,4 @@
-(function(){
+(function($){
     // ### Start variables to configure ###
     var ORIGINAL_DOMAIN = "http://localhost";
     // the page on the original domain to redirect back to.
@@ -64,4 +64,4 @@
     }
     
 
-})();
+})(jQuery);
