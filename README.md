@@ -18,13 +18,18 @@ This library is currently a jQuery plugin, but could be easily modified to stand
 
 3) Once finished, you can use this library with a simple interface:
 
-     $.makeSecureJsonpRequest(url, callback)
+     $.makeSecureJsonpRequest(url, callback, [options])
 
         url - the url against which to make the JSONP request
 
         callback - a function that will be called back with a single argument containing the
           result of the jsonp call when results are available. The result will be in a javascript
           object. 
+
+        options (optional) - an options in the style of jquery that can be passed to the ajax request made
+          in the child iframe. See documentation regarding the formatting of ajax settings object here: 
+          http://api.jquery.com/jQuery.ajax/. The request must still be a jsonp request, but you specify
+          things such as "jsonp", "jsonpCallback", and "cache" as documented on that page.
 
 Example usage:
 

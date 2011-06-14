@@ -7,32 +7,39 @@
     // ### End variables to configure ###
 
     var POSTMESSAGE_AVAILABLE = "postMessage" in window;
-    
-    var makeJsonpRequest = function(url, callback) {
-	$.ajax({ url: url,
-		 dataType: 'jsonp',
-		 success: callback
-               });
+    // should match the MESSAGE_SEPARATOR constant in secure_jsonp.js
+    var MESSAGE_SEPARATOR = "!:!";
+    var IFRAME_LOADED_MESSAGE = "loaded";
+
+    var makeJsonpRequest = function(url, callback, options) {
+        var options = $.extend(options,
+                               { url: url,
+                                 dataType: 'jsonp',
+                                 success: callback
+                               });
+        $.ajax(options);
     }
 
     if(POSTMESSAGE_AVAILABLE) {
         
         var receiveMessage = function(event)
         {
-    	    if (event.origin !== ORIGINAL_DOMAIN) {
-    	        return;
+            if (event.origin !== ORIGINAL_DOMAIN) {
+                return;
             }
 
-            var splitData = event.data.split("!:!");
+            var splitData = event.data.split(MESSAGE_SEPARATOR);
             var requestId = splitData[0];
-            var url = splitData[1];
+            var options = JSON.parse(splitData[1]);
+            var url = splitData[2];
             
-            makeJsonpRequest(url, function(response) {
-    	        event.source.postMessage('["' + requestId + '", ' + JSON.stringify(response) + "]", "*")                
-            });
+            var callback = function(response) {
+                event.source.postMessage('["' + requestId + '", ' + JSON.stringify(response) + "]", "*")                
+            }
+            makeJsonpRequest(url, callback, options);
         }
         
-
+        
         if (window.addEventListener) {
             window.addEventListener("message", receiveMessage, false);
         }
@@ -40,13 +47,16 @@
             window.attachEvent("onmessage", receiveMessage);
         }
         
+        // now tell the parent that we're loaded
+        window.top.postMessage(IFRAME_LOADED_MESSAGE, ORIGINAL_DOMAIN);
+        
     } else { // postmessage not available
         
         var setWindowNameAndRedirect = function(data) {
-	    window.name = JSON.stringify(data);
-	    // redirect back to a blank page on the parent's
-	    // same domain so we can read window.name.
-	    window.location = ORIGINAL_DOMAIN + PAGE_TO_REDIRECT_BACK_TO;
+            window.name = JSON.stringify(data);
+            // redirect back to a blank page on the parent's
+            // same domain so we can read window.name.
+            window.location = ORIGINAL_DOMAIN + PAGE_TO_REDIRECT_BACK_TO;
         }
         
         // because postmessage is not available, each iframe
@@ -55,10 +65,14 @@
         // the hashtag.
         var hashtag = window.location.hash;
         if(hashtag) {
-	    // remove leading hash symbol
-	    var url = decodeURIComponent(hashtag.substr(1,
-						        hashtag.length));
-	    makeJsonpRequest(url, setWindowNameAndRedirect);
+            // remove leading hash symbol
+            var hash = decodeURIComponent(hashtag.substr(1,
+                                                         hashtag.length));
+            var splitData = hash.split(MESSAGE_SEPARATOR);
+
+            var options = JSON.parse(splitData[0]);
+            var url = splitData[1];
+            makeJsonpRequest(url, setWindowNameAndRedirect, options);
         }
         
     }
