@@ -14,11 +14,11 @@ This library is currently a jQuery plugin, but could be easily modified to stand
 
 1) You must include jquery, json2.js, and secure_jsonp.js on your domain to be kept safe. You will then need to upload 'secure_jsonp_iframe.js' and 'secure_jsonp_iframe.html' to a separate domain that you control, and whose security you do not care about (this is important, this is the domain that will be vulnerable to XSS!). 
 
-2) You then need to modify the constants at the top of secure_jsonp.js, secure_jsonp_iframe.js, and the links at the top of secure_jsonp_iframe.html to point to the correct locations on your webserver(s).
+2) You then need to modify the links at the top of secure_jsonp_iframe.html to point to the correct locations on your webserver(s). Then you must configure the script (see configuration instructions below) or modify the default configuration constants at the top of secure_jsonp.js and secure_jsonp_iframe.js.
 
 3) Once finished, you can use this library with a simple interface:
 
-     $.makeSecureJsonpRequest(url, callback, [options])
+     $.secureJsonp.makeRequest(url, callback, [options])
 
         url - the url against which to make the JSONP request
 
@@ -33,11 +33,35 @@ This library is currently a jQuery plugin, but could be easily modified to stand
 
 Example usage:
 
-      $.makeSecureJsonpRequest('https://graph.facebook.com/evanbeard',
-                               console.log
-                              );
+      $.secureJsonp.makeRequest('https://graph.facebook.com/evanbeard',
+                                console.log
+                               );
 
 Move this project to be accessible at the root of a local webserver and view the test.html file in the testing folder to see this script functioning (the two domains used will be localhost and 127.0.0.1).
+
+## Configuration Instructions
+
+On the page including secure_jsonp.js:
+
+   - differentDomain - the domain (whose security we don't care about) that will be opened in an iframe and making the jsonp request
+
+For example:
+
+      $.secureJsonp.configure({differentDomain:'http://127.0.0.1});
+
+On the page including secure_jsonp_iframe.js:
+
+   - originalDomain - the main domain that is making the request (to which to send the response)
+
+   - pageToRedirectBackTo - the page to redirect the iframe back to if using an older browser that doesn't support postmessage
+
+For example:
+
+      $.secureJsonp.configure({originalDomain:'localhost',
+                               pageToRedirectBackTo:'/blank_page.html'});
+
+
+Note: You may wonder why the domains cannot be taken from document.location and passed between the iframes to minimize configuration. This is for two main reasons: security, and because we are using a postmessage from the child to the parent to indicate when the child is finished loading (see comments in code) so there is a chicken and egg problem.
 
 ## Implementation 
 
@@ -66,6 +90,8 @@ One drawback of the window.name transport is a security issue noted below. This 
 ## Security Note
 
 There is a race condition in which the jsonp response could be intercepted if postmessage is not available (in older browsers). This is because window.name is globally accessible in some older browsers (e.g. IE6/7, see http://code.google.com/p/browsersec/w/list). If you are passing sensitive data, it may be wise to implement a block cypher. The parent iframe would send a secret back to the child iframe through the location, and that key would be used to sign the data before placing it in window.name and then used again to decrypt the data from window.name by the parent.
+
+There is a timing attack in which on older browsers not supporting postmessage an attacker could change the window.location property before it is read by the child iframe. This would cause the client's browser to make an erroneous request. The attacker would not receive back data, however, and could already make erroneous jsonp requests if you are on his page, so this is not considered a vulnerability.
 
 ## Authors
 Evan A. Beard

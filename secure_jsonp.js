@@ -1,19 +1,25 @@
 (function($){
     $(document).ready(function() {
-        // ### Start variables to configure ###
+        // ### Start defaults of configuration variables. Can be set via the $.secureJsonp.configure function. ###
         // a separate domain or subdomain whose security we do not care about (e.g. no user cookie)
         // from which to make the jsonp calls
         var DIFFERENT_DOMAIN = 'http://127.0.0.1';
         var PATH_TO_IFRAME_HTML = '/secure_jsonp_iframe.html';
-        // ### End variables to configure ###
+        // ### End configuration defaults ###
         
         // the namespace/prefix to use on our iframe id(s)
         var IFRAME_ID_PREFIX = "secure_jsonp_";
+        // if postmessage is available in this browser
         var POSTMESSAGE_AVAILABLE = 'postMessage' in window;
         // used to delineate discreate pieces of information in the request message
         var MESSAGE_SEPARATOR = "!:!";
         // message sent from child in indicate loading complete
         var IFRAME_LOADED_MESSAGE = "loaded";
+        
+        var setConfiguration = function(configuration) {
+            DIFFERENT_DOMAIN = configuration.differentDomain || DIFFERENT_DOMAIN;
+            PATH_TO_IFRAME_HTML = configuration.pathToIframeHtml || PATH_TO_IFRAME_HTML;
+        }
         
         if(POSTMESSAGE_AVAILABLE) {
             
@@ -40,7 +46,8 @@
                 requestIdToCallback[nextRequestId.toString()] = callback;
                 options = JSON.stringify(options || "{}");
                 
-                var request = nextRequestId + MESSAGE_SEPARATOR + options + MESSAGE_SEPARATOR + url;
+                var request = (nextRequestId + MESSAGE_SEPARATOR + options + MESSAGE_SEPARATOR + url);
+                
                 
                 // to find when the iframe is loaded we are going to wait for a postmessage
                 // that the child sends us when finished loading. The .load() and .ready() functions
@@ -58,7 +65,7 @@
             var receiveMessage = function(event)
             {
                 if (event.origin !== DIFFERENT_DOMAIN) {
-                    return;
+                    throw "Message received from unapproved domain";
                 }
                 
                 if(!iframeLoaded && event.data === "loaded") {
@@ -119,7 +126,7 @@
                     secureJsonpIframeOnload(iframeId, callback);
                 }
             }
-
+            
             // a globally accessible place to store the callback functions
             $._secureJsonpCallbacks = {};
             
@@ -150,9 +157,11 @@
             }
             
         }
-
-        // attach to the jquery namespace
-        $.makeSecureJsonpRequest = makeSecureJsonpRequest;
-
+        
+        // attach to the global namespace
+        $.secureJsonp = {};
+        $.secureJsonp.makeRequest = makeSecureJsonpRequest;
+        $.secureJsonp.configure = setConfiguration;
+        
     });
 })(jQuery);

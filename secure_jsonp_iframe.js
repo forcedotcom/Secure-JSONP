@@ -5,12 +5,12 @@
     // can be any existing page, such as robots.txt.
     var PAGE_TO_REDIRECT_BACK_TO = "/blank_page.html";
     // ### End variables to configure ###
-
+    
     var POSTMESSAGE_AVAILABLE = "postMessage" in window;
     // should match the MESSAGE_SEPARATOR constant in secure_jsonp.js
     var MESSAGE_SEPARATOR = "!:!";
     var IFRAME_LOADED_MESSAGE = "loaded";
-
+    
     var makeJsonpRequest = function(url, callback, options) {
         var options = $.extend(options,
                                { url: url,
@@ -19,22 +19,27 @@
                                });
         $.ajax(options);
     }
-
+    
+    var setConfiguration = function(configuration) {
+        PAGE_TO_REDIRECT_BACK_TO = configuration.different_domain || PAGE_TO_REDIRECT_BACK_TO;
+        WHITELISTED_DOMAIN_REGEXS = configuration.whitelisted_domain_regexs || WHITELISTED_DOMAIN_REGEXS;
+    }
+    
     if(POSTMESSAGE_AVAILABLE) {
         
         var receiveMessage = function(event)
         {
+            
             if (event.origin !== ORIGINAL_DOMAIN) {
-                return;
+                throw "Message received from unapproved domain";
             }
-
             var splitData = event.data.split(MESSAGE_SEPARATOR);
             var requestId = splitData[0];
             var options = JSON.parse(splitData[1]);
             var url = splitData[2];
             
             var callback = function(response) {
-                event.source.postMessage('["' + requestId + '", ' + JSON.stringify(response) + "]", "*")                
+                event.source.postMessage('["' + requestId + '", ' + JSON.stringify(response) + "]", "*");   
             }
             makeJsonpRequest(url, callback, options);
         }
@@ -68,14 +73,18 @@
             // remove leading hash symbol
             var hash = decodeURIComponent(hashtag.substr(1,
                                                          hashtag.length));
-            var splitData = hash.split(MESSAGE_SEPARATOR);
 
+            var splitData = hash.split(MESSAGE_SEPARATOR);
             var options = JSON.parse(splitData[0]);
             var url = splitData[1];
             makeJsonpRequest(url, setWindowNameAndRedirect, options);
         }
         
     }
-    
 
+    // attach to the global namespace
+    $.secureJsonp = {};
+    $.secureJsonp.configure = setConfiguration;
+        
+    
 })(jQuery);

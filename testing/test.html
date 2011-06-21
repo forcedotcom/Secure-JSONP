@@ -7,17 +7,21 @@
   <script type="text/javascript">
     $(document).ready(function(){
     
+    // This script should be loaded from "localhost". Other
+    // domain will be 127.0.0.1
+    $.secureJsonp.configure({differentDomain:'http://127.0.0.1'});
+    
     var testCallback = function(result) {
         $('body').append("<br><br>result: " +  JSON.stringify(result));
     };
     
-    $.makeSecureJsonpRequest('https://graph.facebook.com/evanbeard',
+    $.secureJsonp.makeRequest('https://graph.facebook.com/evanbeard',
                              testCallback
                             );
 
-    $.makeSecureJsonpRequest('https://graph.facebook.com/howietl',
+    $.secureJsonp.makeRequest('https://graph.facebook.com/howietl',
                              testCallback
-                            );
+                             );
 
     });
   </script>
