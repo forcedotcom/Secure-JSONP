@@ -29,7 +29,8 @@ This library is currently a jQuery plugin, but could be easily modified to stand
         options (optional) - an options in the style of jquery that can be passed to the ajax request made
           in the child iframe. See documentation regarding the formatting of ajax settings object here: 
           http://api.jquery.com/jQuery.ajax/. The request must still be a jsonp request, but you specify
-          things such as "jsonp", "jsonpCallback", and "cache" as documented on that page.
+          things such as "jsonp", "jsonpCallback", and "cache" as documented on that page. (only text options
+          may be specified, i.e. not functions).
 
 Example usage:
 
