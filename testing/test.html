@@ -9,7 +9,8 @@
     
     // This script should be loaded from "localhost". Other
     // domain will be 127.0.0.1
-    $.secureJsonp.configure({differentDomain:'http://127.0.0.1'});
+    $.secureJsonp.configure({differentDomain:'http://127.0.0.1',
+                             pathToIframeHtml:'/secure_jsonp_iframe.html'});
     
     var testCallback = function(result) {
         $('body').append("<br><br>result: " +  JSON.stringify(result));

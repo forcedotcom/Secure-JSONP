@@ -45,10 +45,13 @@ Move this project to be accessible at the root of a local webserver and view the
 On the page including secure_jsonp.js:
 
    - differentDomain - the domain (whose security we don't care about) that will be opened in an iframe and making the jsonp request
+   - pathToIframeHtml - the path on the different domain to the secure_jsonp_iframe.html file
 
 For example:
 
-      $.secureJsonp.configure({differentDomain:'http://127.0.0.1});
+      $.secureJsonp.configure({differentDomain:'http://127.0.0.1',
+                               pathToIframeHtml:'/secure_jsonp_iframe.html'
+                               });
 
 On the page including secure_jsonp_iframe.js:
 
