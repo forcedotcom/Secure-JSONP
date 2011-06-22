@@ -1,32 +1,32 @@
 <!doctype html>
 <html>
-<head>
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
-  <script src="../dependencies/json2.js"></script>
-  <script src="../secure_jsonp.js"></script>
-  <script type="text/javascript">
-    $(document).ready(function(){
-    
-    // This script should be loaded from "localhost". Other
-    // domain will be 127.0.0.1
-    $.secureJsonp.configure({differentDomain:'http://127.0.0.1',
-                             pathToIframeHtml:'/secure_jsonp_iframe.html'});
-    
-    var testCallback = function(result) {
-        $('body').append("<br><br>result: " +  JSON.stringify(result));
-    };
-    
-    $.secureJsonp.makeRequest('https://graph.facebook.com/evanbeard',
-                             testCallback
-                            );
+  <head>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script src="../dependencies/json2.js"></script>
+    <script src="../secure_jsonp.js"></script>
+    <script type="text/javascript">
+      $(document).ready(function(){
+      
+      // This script should be loaded from "localhost". Other
+      // domain will be 127.0.0.1
+      $.secureJsonp.initialize({differentDomain:'http://127.0.0.1',
+                                pathToIframeHtml:'/secure_jsonp_iframe.html'});
+      
+      var testCallback = function(result) {
+         $('body').append("<br><br>result: " +  JSON.stringify(result));
+      };
+      
+      $.secureJsonp.makeRequest('https://graph.facebook.com/evanbeard',
+         testCallback
+      );
 
-    $.secureJsonp.makeRequest('https://graph.facebook.com/howietl',
-                             testCallback
-                             );
+      $.secureJsonp.makeRequest('https://graph.facebook.com/howietl',
+         testCallback
+      );
 
-    });
-  </script>
-</head>
-<body>
-</body>
+      });
+    </script>
+  </head>
+  <body>
+  </body>
 </html>

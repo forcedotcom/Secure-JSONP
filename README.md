@@ -14,7 +14,7 @@ This library is currently a jQuery plugin, but could be easily modified to stand
 
 1) You must include jquery, json2.js, and secure_jsonp.js on your domain to be kept safe. You will then need to upload 'secure_jsonp_iframe.js' and 'secure_jsonp_iframe.html' to a separate domain that you control, and whose security you do not care about (this is important, this is the domain that will be vulnerable to XSS!). 
 
-2) You then need to modify the links at the top of secure_jsonp_iframe.html to point to the correct locations on your webserver(s). Then you must configure the script (see configuration instructions below) or modify the default configuration constants at the top of secure_jsonp.js and secure_jsonp_iframe.js.
+2) You then need to modify the links at the top of secure_jsonp_iframe.html to point to the correct locations on your webserver(s). Finally you must configure the script with $.secureJsonp.initialize (see configuration instructions below) or modify the default configuration constants at the top of secure_jsonp.js and secure_jsonp_iframe.js.
 
 3) Once finished, you can use this library with a simple interface:
 
@@ -42,6 +42,8 @@ Move this project to be accessible at the root of a local webserver and view the
 
 ## Configuration Instructions
 
+You must call initialize before using the $.secureJsonp.makeRequest function. It can be called without arguments to use the default configuration, or configured with the parameters below.
+
 On the page including secure_jsonp.js:
 
    - differentDomain - the domain (whose security we don't care about) that will be opened in an iframe and making the jsonp request
@@ -49,7 +51,7 @@ On the page including secure_jsonp.js:
 
 For example:
 
-      $.secureJsonp.configure({differentDomain:'http://127.0.0.1',
+      $.secureJsonp.initialize({differentDomain:'http://127.0.0.1',
                                pathToIframeHtml:'/secure_jsonp_iframe.html'
                                });
 
@@ -61,7 +63,7 @@ On the page including secure_jsonp_iframe.js:
 
 For example:
 
-      $.secureJsonp.configure({originalDomain:'localhost',
+      $.secureJsonp.initialize({originalDomain:'http://localhost',
                                pageToRedirectBackTo:'/blank_page.html'});
 
 

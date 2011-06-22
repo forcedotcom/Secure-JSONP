@@ -5,7 +5,14 @@
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
   <script src="dependencies/json2.js"></script>
   <script src="secure_jsonp_iframe.js"></script>
-
+  <script type="text/javascript">
+    $(document).ready(function(){
+      
+       $.secureJsonp.initialize({originalDomain:'http://localhost',
+                                 pageToRedirectBackTo:'/blank_page.html'});
+      
+    });
+  </script>
 </head>
 <body></body>
 </html>
