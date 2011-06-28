@@ -35,7 +35,7 @@
         _receiveMessage: function(event)
         {
             if (event.origin !== ORIGINAL_DOMAIN) {
-                throw ("Message received from " + event.origin + "but only " + 
+                throw ("Message received from " + event.origin + " but only " + 
                        DIFFERENT_DOMAIN + " is approved");
             }
             var splitData = event.data.split(MESSAGE_SEPARATOR);

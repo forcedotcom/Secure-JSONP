@@ -65,7 +65,7 @@
             _receiveMessage: function(event)
             {
                 if (event.origin !== DIFFERENT_DOMAIN) {
-                    throw ("Message received from " + event.origin + "but only " + 
+                    throw ("Message received from " + event.origin + " but only " + 
                            DIFFERENT_DOMAIN + " is approved");
                 }
                 
@@ -145,9 +145,12 @@
                 // NB: get rid of clicks (that occur whenever an iframe's location changes) 
                 // in IE by detaching iframe from main document.
                 // see: http://grack.com/blog/2009/07/28/a-quieter-window-name-transport-for-ie/
-                var iframe = $('<iframe id="' + IFRAME_ID_PREFIX + this.nextIframeId + '" onload="$._secureJsonpCallbacks[' + this.nextIframeId + ']()" style="display:none;"/>').attr('src', url);
+                var iframe = $('<iframe id="' + IFRAME_ID_PREFIX + this.nextIframeId + '" onload="$._secureJsonpCallbacks[' + this.nextIframeId + ']()" style="display:none;"/>');
                 
+                // add the iframe to the DOM before setting its source so
+                // it doesn't hang older browsers
                 iframe.appendTo('body');
+                iframe.attr('src', url);
                 this.nextIframeId += 1;
                 return iframe;
             },
