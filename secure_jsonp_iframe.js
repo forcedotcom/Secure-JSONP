@@ -27,7 +27,7 @@
             $.ajax(options);
         }
     }
-
+    
     
     var PostMessageImplementation = function() {};
     PostMessageImplementation.prototype = new BaseImplementation();
@@ -69,13 +69,14 @@
     var WindowNameImplementation = function() {};
     WindowNameImplementation.prototype = new BaseImplementation();
     $.extend(WindowNameImplementation.prototype, {
-        _setWindowNameAndRedirect: function(data) {
-            window.name = JSON.stringify(data);
+        _setWindowNameAndRedirect: function(requestId, data) {
+            window.name = requestId + MESSAGE_SEPARATOR + JSON.stringify(data);
             // redirect back to a blank page on the parent's
             // same domain so we can read window.name.
             window.location = ORIGINAL_DOMAIN + PAGE_TO_REDIRECT_BACK_TO;
         },
         initialize: function() {
+            var that = this;
             // because postmessage is not available, each iframe
             // (such as the one we're in) will be used for only one
             // jsonp request, and we read the url for the request from
@@ -87,9 +88,12 @@
                                                              hashtag.length));
                 
                 var splitData = hash.split(MESSAGE_SEPARATOR);
-                var options = JSON.parse(splitData[0]);
-                var url = splitData[1];
-                this._makeJsonpRequest(url, this._setWindowNameAndRedirect, options);
+                var requestId = splitData[0];
+                var options = JSON.parse(splitData[1]);
+                var url = splitData[2];
+                this._makeJsonpRequest(url, function(data) {
+                    that._setWindowNameAndRedirect(requestId, data)
+                }, options);
             }
         }
     });

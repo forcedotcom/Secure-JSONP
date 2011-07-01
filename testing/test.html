@@ -12,17 +12,26 @@
       $.secureJsonp.initialize({differentDomain:'http://127.0.0.1',
                                 pathToIframeHtml:'/secure_jsonp_iframe.html'});
       
-      var testCallback = function(result) {
-         $('body').append("<br><br>result: " +  JSON.stringify(result));
+      var testCallback = function(result, requestNumber) {
+         $('body').append("<br><br>result for " + requestNumber + ": " +  JSON.stringify(result));
       };
       
-      $.secureJsonp.makeRequest('https://graph.facebook.com/evanbeard',
-         testCallback
+      $.secureJsonp.makeRequest('https://graph.facebook.com/john',
+         function(result) { testCallback(result, 1) }
       );
 
-      $.secureJsonp.makeRequest('https://graph.facebook.com/howietl',
-         testCallback
+      $.secureJsonp.makeRequest('https://graph.facebook.com/adam',
+         function(result) { testCallback(result, 2) }
       );
+      
+      $.secureJsonp.makeRequest('https://graph.facebook.com/evanbeard',
+         function(result) { testCallback(result, 3) }
+      );
+      
+      $.secureJsonp.makeRequest('https://graph.facebook.com/howietl',
+         function(result) { testCallback(result, 4) }
+      );
+
 
       });
     </script>
