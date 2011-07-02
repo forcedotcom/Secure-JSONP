@@ -79,7 +79,7 @@ If postmessage is available a single child iframe is created. When we want to ma
 
 ### Postmessage not available
 
-This is the harder case. Here we need one child iframe to use per request (though we support reusing iframes and limiting the number of child iframes in use at any one time). We pass the url that we want to request in the hashtag of the child iframe. The child makes the jsonp request, and on callback it sets its window.name property to the result of the request and redirects the page back (to any page on the original domain. We have included a blank_page.html file to include on the original domain, although an existing file, such as robots.txt, could be used). When the iframe is redirected back to the original domain this sets off the onload function of the iframe in the top parent window, which can retrieve the result and destroy the iframe.
+This is the harder case. Here we must make one child iframe per request. We pass the url that we want to request in the hashtag of the child iframe. The child makes the jsonp request, and on callback it sets its window.name property to the result of the request and redirects the page back (to any page on the original domain. We have included a blank_page.html file to include on the original domain, although an existing file, such as robots.txt, could be used). When the iframe is redirected back to the original domain this sets off the onload function of the iframe in the top parent window, which can retrieve the result and destroy the iframe.
 
 ## How this compares to existing libraries
 

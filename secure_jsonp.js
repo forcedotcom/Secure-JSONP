@@ -17,10 +17,6 @@
         // message sent from child in indicate loading complete
         IFRAME_LOADED_MESSAGE = "loaded";
         
-        // the largest number of iframes that any implementation
-        // should open concurrently
-        MAXIMUM_CHILD_IFRAMES = 2;
-        
         var BaseImplementation = function() {};
         BaseImplementation.prototype = 
             {
@@ -79,7 +75,7 @@
                     return;
                 }
                 
-                var result = event.data ? JSON.parse(event.data) : "";
+                var result = JSON.parse(event.data);
                 var requestId = result[0];
                 var data = result[1];
                 this.requestIdToCallback[requestId](data);
@@ -121,34 +117,26 @@
             }
         });
 
-        
+
         
         var WindowNameImplementation = function() {
             // the unique id to assign to the next iframe request
             this.nextIframeId = 0;
-
-            // the unique id assigned to the next request
-            this.nextRequestId = 0;
-
-            // we reuse iframes because older browsers can't support large
-            // numbers of iframes, and it's expensive to create new iframes
-            // requests waiting on a spare iframe to become available because
-            // we're past our limit. This method of reusing iframes is markedly
-            // faster on older browsers despite reducing concurrency
-            // enqueuedRequests holds a list of URLs we are waiting to visit
-            this.enqueuedRequests = [];
-            
-            // references to the iframes we're using for our requests
-            this.iframes = [];
-            // iframes not currently being used for a request
-            this.idleIframes = [];
-
-            // a hashmap of requestIds to corresponding callback functions
-            this.callbacks = {}
-
+            // a globally accessible place to store the callback functions
+            // it is necessary to make this globally accessible for function
+            // to call in IE7
+            $._secureJsonpCallbacks = {};
         }
         WindowNameImplementation.prototype = new BaseImplementation();
         $.extend(WindowNameImplementation.prototype, {
+            // a wrapper around the iframeOnload function to preserve the
+            // iframeId through closure
+            _makeOnloadFunction: function(iframeId, callback) {
+                var that = this;
+                return function() {
+                    that._iframeOnload(iframeId, callback);
+                }
+            },
             _createIframe: function(url) {
                 // must set the onload function here for IE to work correctly.
                 // and this onload function must be globally accessible to be reached.
@@ -157,8 +145,7 @@
                 // NB: get rid of clicks (that occur whenever an iframe's location changes) 
                 // in IE by detaching iframe from main document.
                 // see: http://grack.com/blog/2009/07/28/a-quieter-window-name-transport-for-ie/
-                var iframe = $('<iframe id="' + IFRAME_ID_PREFIX + this.nextIframeId + 
-                               '" onload="$.secureJsonpWindowNameCallback(' + this.nextIframeId  + ')" style="display:none;"/>');
+                var iframe = $('<iframe id="' + IFRAME_ID_PREFIX + this.nextIframeId + '" onload="$._secureJsonpCallbacks[' + this.nextIframeId + ']()" style="display:none;"/>');
                 
                 // add the iframe to the DOM before setting its source so
                 // it doesn't hang older browsers
@@ -169,7 +156,7 @@
             },
             // the function that is called when the child iframe returns back
             // if postmessage is not available
-            _iframeOnload: function(iframeId){
+            _iframeOnload: function(iframeId, callback){
                 var iframe = document.getElementById(IFRAME_ID_PREFIX + iframeId);
                 // on the initial iframe load, it will be on a different
                 // domain (to make the jsonp call) and we won't have the
@@ -183,62 +170,26 @@
                     // so we couldn't check the name property.
                     return;
                 }
-
-                var splitData = result.split(MESSAGE_SEPARATOR);
-                var requestId = splitData[0];
-                var data = splitData[1];
-                if(data) {
-                    data = JSON.parse(data);
-                }
-                this.callbacks[requestId](data);
+                result = JSON.parse(result);
+                callback(result);
                 
-                // see if we have requests enqueued waiting for a spare iframe
-                // and set them off if so
-                if(this.enqueuedRequests.length > 0) {
-                    var url = this.enqueuedRequests.shift();
-                    this._beginRequestWithIframe(iframe, url);
-                } else {
-                    this.idleIframes.push(iframe);
-                }
-            },
-            _beginRequestWithIframe: function(iframe, url) {
-                $(iframe).attr('src', url);
+                // now remove the iframe and delete the reference to the callback
+                iframe.parentNode.removeChild(iframe);
+                delete $._secureJsonpCallbacks[iframeId];
             },
             initialize: function() {
-                var that = this;
-
-                // need to attach our onload function to the global namespace
-                // so IE7 can find and call the onload function
-                $.secureJsonpWindowNameCallback = function(iframeId) {
-                    that._iframeOnload(iframeId);
-                }
             },
             makeRequest: function(url, callback, options) {
                 options = JSON.stringify(options || "{}");
                 
-                var request = encodeURIComponent(this.nextRequestId + MESSAGE_SEPARATOR + 
-                                                 options + MESSAGE_SEPARATOR + url);
+                var request = encodeURIComponent(options + MESSAGE_SEPARATOR + url);
                 var url = DIFFERENT_DOMAIN + PATH_TO_IFRAME_HTML + '#' + request;
                 
-                this.callbacks[this.nextRequestId] = callback;
-                this.nextRequestId += 1;
-
-                // if we have an idle iframe, use the idle iframe to make another request
-                // otherwise if we are below our limit create a new iframe
-                // otherwise enqueue the request to wait for iframe destruction
-                if(this.idleIframes.length > 0) {
-                    var iframe = this.idleIframes.shift();
-                    this._beginRequestWithIframe(iframe, url);
-                } else if (this.iframes.length < MAXIMUM_CHILD_IFRAMES) {
-                    var iframe = this._createIframe(url);
-                    this.iframes.push(iframe);
-                    this._beginRequestWithIframe(iframe, url);
-                } else {
-                    // there should not be a race condition here
-                    // between adding to and removing from the queue
-                    // because only one thread executes concurrently
-                    this.enqueuedRequests.push(url);
-                }
+                // first we need to make callback globally accessible for IE 7
+                $._secureJsonpCallbacks[this.nextIframeId] = this._makeOnloadFunction(this.nextIframeId,
+                                                                                      callback);
+                
+                this._createIframe(url);
             }
         });
         
